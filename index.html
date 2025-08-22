@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Farm2Mill • Digital Marketplace (Light)</title>
+  <meta name="description" content="Farm2Mill – Connect farmers and vetted buyers. List produce, make offers, and close deals." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f8fafc; --panel:#ffffff; --muted:#f1f5f9; --card:#ffffff; --accent:#16a34a; --accent-2:#06b6d4;
+      --text:#0f172a; --sub:#475569; --danger:#b91c1c; --warning:#b45309; --ok:#047857;
+      --chip:#f8fafc; --chip-border:#e2e8f0;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f8fafc,#eff4f9);color:var(--text)}
+    a{color:inherit}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .app{min-height:100vh;}
+    .glass{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.9));border:1px solid rgba(15,23,42,.08);box-shadow:0 10px 30px rgba(2,6,23,.06);border-radius:16px}
+    .card{border:1px solid #e2e8f0;background:var(--card);border-radius:16px;padding:16px;box-shadow:0 8px 20px rgba(2,6,23,.04)}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #e2e8f0;padding:12px 16px;border-radius:12px;cursor:pointer;background:#ffffff;color:#0f172a;font-weight:700;transition:.2s;min-height:44px}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 6px 10px rgba(2,6,23,.06)}
+    .btn.primary{background:linear-gradient(180deg,#22c55e,#16a34a);color:#ffffff;border-color:#16a34a}
+    .btn.cyan{background:linear-gradient(180deg,#06b6d4,#0ea5e9);color:#ffffff;border-color:#0ea5e9}
+    .btn.ghost{background:#ffffff}
+    .btn.warn{background:linear-gradient(180deg,#fbbf24,#f59e0b);color:#1a1203;border-color:#f59e0b}
+    .btn.danger{background:linear-gradient(180deg,#ef4444,#dc2626);color:#ffffff;border-color:#dc2626}
+    .btn.small{padding:10px 12px;border-radius:10px;font-size:.95rem}
+    .btn.block{width:100%;justify-content:center}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .col{flex:1 1 280px}
+    .grid{display:grid;gap:16px}
+    .grid.cards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+    .muted{color:var(--sub)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid var(--chip-border);background:var(--chip);font-size:.9rem}
+    .chip{display:inline-flex;padding:4px 10px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;font-size:.8rem}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    .field label{font-size:.95rem;color:#0f172a;font-weight:700}
+    .help{font-size:.85rem;color:#64748b}
+    .field input,.field select,.field textarea{background:#ffffff;border:1px solid #e2e8f0;color:#0f172a;border-radius:12px;padding:12px 14px;outline:none;min-height:44px}
+    .field textarea{min-height:90px;resize:vertical}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
+    .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .h1{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:.2px}
+    .h2{font-size:20px;font-weight:800;margin:8px 0}
+    .h3{font-size:18px;font-weight:700;margin:6px 0}
+    .tag{font-weight:800;background:linear-gradient(90deg,#16a34a,#06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero{padding:28px;border-radius:16px;margin:24px 0;position:relative}
+    .role-card{padding:18px;border-radius:16px;background:#ffffff;border:1px solid #e2e8f0}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin:12px 0}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    .kpi{padding:14px;border-radius:14px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(2,6,23,.03)}
+    .kpi .num{font-size:24px;font-weight:800}
+    .status{display:inline-flex;align-items:center;gap:6px;font-weight:800}
+    .status.active{color:var(--ok)}
+    .status.sold{color:var(--danger)}
+    .status.pending{color:var(--warning)}
+    .stickybar{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#ffffffee,#ffffffcc);backdrop-filter:blur(6px);padding:12px 0;border-bottom:1px solid #e2e8f0}
+    .footer{opacity:.9;color:#475569;font-size:.95rem;margin-top:24px;text-align:center}
+    .hidden{display:none!important}
+    dialog{border:none;border-radius:16px;padding:0;background:#ffffff;color:var(--text);width:min(560px,95vw);box-shadow:0 20px 60px rgba(2,6,23,.18)}
+    dialog::backdrop{background:rgba(15,23,42,.3)}
+    .modal{padding:16px}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:10px;text-align:left;border-bottom:1px solid #e2e8f0}
+    .table th{color:#0f172a;font-weight:800}
+    .badge{font-weight:800;font-size:.8rem;padding:6px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a}
+    .searchbar{display:flex;gap:8px;flex-wrap:wrap}
+    .img-preview{width:100%;height:160px;border-radius:12px;object-fit:cover;border:1px solid #e2e8f0;background:#f8fafc}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo .mark{width:34px;height:34px;border-radius:10px;background:conic-gradient(from 120deg,#16a34a,#06b6d4,#16a34a);box-shadow:0 0 40px #16a34a33}
+    .chipbar{display:flex;gap:8px;flex-wrap:wrap}
+    .tabs{display:inline-grid;grid-auto-flow:column;gap:6px;background:#eef2f7;border:1px solid #e2e8f0;border-radius:12px;padding:6px}
+    .tab{padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .tab[aria-selected="true"]{background:#fff;border:1px solid #e2e8f0}
+    .fab{position:fixed;right:18px;bottom:18px}
+    ::placeholder{color:#94a3b8}
+    .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{outline:3px solid #93c5fd; outline-offset:2px}
+    @media (max-width:640px){.header{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="stickybar">
+      <div class="container header">
+        <div class="logo">
+          <div class="mark" aria-hidden="true"></div>
+          <div>
+            <div class="h2">Farm2Mill</div>
+            <div class="muted" style="font-size:.95rem">Farmers ↔ Vetted Buyers • SA-first</div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="tabs" role="tablist" aria-label="Role">
+            <button class="tab" id="tabFarmer" role="tab" aria-selected="true">Farmer</button>
+            <button class="tab" id="tabBuyer" role="tab" aria-selected="false">Buyer</button>
+          </div>
+          <button class="btn cyan small" id="btnExport" title="Download your data as JSON">Export</button>
+          <label class="btn small" for="importInput" title="Import previously exported JSON">Import</label>
+          <input id="importInput" type="file" accept="application/json" class="hidden" />
+          <button class="btn ghost small" id="btnDemo">Load Demo Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANDING / ONBOARDING -->
+    <main class="container" id="viewLanding">
+      <div class="hero glass">
+        <div class="h1">Welcome to <span class="tag">Farm2Mill</span></div>
+        <p class="muted">Pick your role to get started. You can switch anytime using the role tabs above.</p>
+        <div class="row" style="margin-top:18px">
+          <div class="col role-card">
+            <div class="h2">I am a Farmer</div>
+            <ul class="help" style="margin:6px 0 12px 18px;line-height:1.6">
+              <li>Add a listing (crop, qty, price, location, notes)</li>
+              <li>Get offers from verified buyers</li>
+              <li>Accept an offer → Mark SOLD</li>
+            </ul>
+            <button class="btn primary" id="goFarmer">Enter Farmer Workspace</button>
+          </div>
+          <div class="col role-card">
+            <div class="h2">I am a Buyer</div>
+            <ul class="help" style="margin:6px 0 12px 18px;line-height:1.6">
+              <li>Set your buyer profile (company + contact)</li>
+              <li>Filter by crop/location/price</li>
+              <li>Make offers and track responses</li>
+            </ul>
+            <button class="btn cyan" id="goBuyer">Enter Buyer Marketplace</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpis" aria-label="Marketplace stats">
+          <div class="kpi"><div class="muted">Active Listings</div><div class="num" id="kpiActive">0</div></div>
+          <div class="kpi"><div class="muted">Total Offers</div><div class="num" id="kpiOffers">0</div></div>
+          <div class="kpi"><div class="muted">Completed Sales</div><div class="num" id="kpiSold">0</div></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FARMER VIEW -->
+    <section class="container hidden" id="viewFarmer" aria-label="Farmer Workspace">
+      <div class="header">
+        <div class="h1">Farmer Workspace</div>
+        <div class="pill"><span>Profile:</span> <span id="farmerNameLabel" class="badge">Not set</span></div>
+      </div>
+
+      <div class="row">
+        <div class="col card">
+          <div class="h2">My Profile</div>
+          <div class="field"><label for="farmerName">Name</label><input id="farmerName" placeholder="e.g., Thabo M."><div class="help">Shown on your listings.</div></div>
+          <div class="field"><label for="farmerPhone">Phone / WhatsApp</label><input id="farmerPhone" placeholder="e.g., 082 123 4567"><div class="help">Shared with buyers viewing your listing.</div></div>
+          <div class="field"><label for="farmerLocation">Location</label><input id="farmerLocation" placeholder="Town / Province"></div>
+          <button class="btn primary" id="saveFarmer">Save Profile</button>
+        </div>
+
+        <div class="col card">
+          <div class="h2">Add New Listing</div>
+          <div class="row">
+            <div class="col">
+              <div class="field"><label for="crop">Crop</label>
+                <select id="crop">
+                  <option>Maize</option>
+                  <option>Soya</option>
+                  <option>Wheat</option>
+                  <option>Sunflower</option>
+                  <option>Sorghum</option>
+                  <option>Barley</option>
+                </select></div>
+              <div class="field"><label for="qty">Quantity</label><input id="qty" type="number" min="0" step="0.01" placeholder="e.g., 50"></div>
+              <div class="field"><label for="unit">Unit</label>
+                <select id="unit">
+                  <option value="ton">ton</option>
+                  <option value="kg">kg</option>
+                </select></div>
+            </div>
+            <div class="col">
+              <div class="field"><label for="price">Asking Price (ZAR per unit)</label><input id="price" type="number" min="0" step="0.01" placeholder="e.g., 4800"></div>
+              <div class="field"><label for="listingLocation">Location</label><input id="listingLocation" placeholder="Defaults to profile location"></div>
+              <div class="field"><label for="notes">Quality / Notes</label><textarea id="notes" placeholder="Grade, moisture %, harvest date, storage, etc."></textarea></div>
+            </div>
+          </div>
+          <div class="field"><label for="photo">Photo (optional)</label><input id="photo" type="file" accept="image/*"></div>
+          <img id="photoPreview" class="img-preview hidden" alt="preview" />
+          <div class="toolbar">
+            <button class="btn" id="resetListing">Reset</button>
+            <button class="btn primary" id="createListing">Create Listing</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="header">
+          <div class="h2">My Listings</div>
+          <div class="toolbar">
+            <select id="farmerFilterStatus" title="Filter by status">
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending Offers</option>
+              <option value="sold">Sold</option>
+            </select>
+            <input id="farmerSearch" placeholder="Search crop/location…" />
+            <select id="farmerSort">
+              <option value="new">Newest</option>
+              <option value="priceAsc">Price ↑</option>
+              <option value="priceDesc">Price ↓</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid cards" id="farmerListings"></div>
+      </div>
+
+      <div class="fab"><button class="btn primary" id="quickAdd">＋ Quick add Maize 10t</button></div>
+    </section>
+
+    <!-- BUYER VIEW -->
+    <section class="container hidden" id="viewBuyer" aria-label="Buyer Marketplace">
+      <div class="header">
+        <div class="h1">Buyer Marketplace</div>
+        <div class="pill"><span>Status:</span> <span id="buyerVerifyBadge" class="badge">Unverified</span></div>
+      </div>
+
+      <div class="row">
+        <div class="col card">
+          <div class="h2">Buyer Profile</div>
+          <div class="field"><label for="buyerCompany">Company Name</label><input id="buyerCompany" placeholder="e.g., Lowveld Milling (Pty) Ltd"></div>
+          <div class="field"><label for="buyerName">Contact Person</label><input id="buyerName" placeholder="e.g., Nomsa K."></div>
+          <div class="field"><label for="buyerPhone">Phone / WhatsApp</label><input id="buyerPhone" placeholder="e.g., 083 555 9999"></div>
+          <div class="field"><label for="buyerVerified">Verified?</label>
+            <select id="buyerVerified">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+            <div class="help">Verification is a simple flag in this demo. In production, hook to KYC.</div>
+          </div>
+          <button class="btn cyan" id="saveBuyer">Save Profile</button>
+        </div>
+
+        <div class="col card">
+          <div class="h2">Search Listings</div>
+          <div class="chipbar" style="margin-bottom:8px">
+            <button class="pill" data-cropchip="Maize">Maize</button>
+            <button class="pill" data-cropchip="Soya">Soya</button>
+            <button class="pill" data-cropchip="Wheat">Wheat</button>
+            <button class="pill" data-cropchip="Sunflower">Sunflower</button>
+            <button class="pill" data-cropchip="Sorghum">Sorghum</button>
+            <button class="pill" data-cropchip="Barley">Barley</button>
+          </div>
+          <div class="searchbar">
+            <select id="filterCrop" title="Filter by crop">
+              <option value="">All Crops</option>
+              <option>Maize</option>
+              <option>Soya</option>
+              <option>Wheat</option>
+              <option>Sunflower</option>
+              <option>Sorghum</option>
+              <option>Barley</option>
+            </select>
+            <input id="filterLocation" placeholder="Location contains…">
+            <input id="filterMaxPrice" type="number" min="0" step="0.01" placeholder="Max price / unit (ZAR)">
+            <select id="buyerSort">
+              <option value="new">Newest</option>
+              <option value="priceAsc">Price ↑</option>
+              <option value="priceDesc">Price ↓</option>
+            </select>
+            <label class="pill" title="Show only active listings"><input type="checkbox" id="onlyActive" checked style="margin-right:8px">Only Active</label>
+            <button class="btn" id="applyFilters">Apply</button>
+            <button class="btn ghost" id="resetFilters">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="header"><div class="h2">Browse</div><div class="muted" id="browseCount">0 results</div></div>
+        <div class="grid cards" id="browseListings"></div>
+      </div>
+
+    </section>
+
+    <footer class="container footer muted">
+      Demo only. Data is stored locally in your browser (localStorage). 🇿🇦
+    </footer>
+  </div>
+
+  <!-- Modals -->
+  <dialog id="offerModal" aria-label="Make an Offer">
+    <form method="dialog" class="modal">
+      <div class="h2">Make an Offer</div>
+      <div class="muted" id="offerListingTitle"></div>
+      <div class="field"><label for="offerPrice">Offer Price (ZAR per unit)</label><input id="offerPrice" type="number" min="0" step="0.01" required></div>
+      <div class="field"><label for="offerQty">Quantity to Buy (in listing units)</label><input id="offerQty" type="number" min="0" step="0.01" required></div>
+      <div class="field"><label for="offerMsg">Message to Farmer</label><textarea id="offerMsg" placeholder="Incoterms, pickup date, payment terms, etc."></textarea></div>
+      <div class="toolbar">
+        <button class="btn" value="cancel">Cancel</button>
+        <button class="btn cyan" id="submitOffer" value="default">Submit Offer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="offersViewer" aria-label="Offers Viewer">
+    <form method="dialog" class="modal">
+      <div class="h2">Offers for <span id="ovTitle"></span></div>
+      <div class="muted" id="ovSub"></div>
+      <div id="ovList" style="margin-top:10px"></div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn" value="cancel">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // -----------------------
+    // Utilities & Persistence
+    // -----------------------
+    const $ = (q, el=document)=>el.querySelector(q);
+    const $$ = (q, el=document)=>[...el.querySelectorAll(q)];
+    const fmtMoney = (n)=> new Intl.NumberFormat('en-ZA',{style:'currency',currency:'ZAR',maximumFractionDigits:2}).format(Number(n||0));
+    const uid = ()=> Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+    const DB_KEY = 'f2m_db_v3_light_plus';
+    const dbDefault = { farmer:{name:'',phone:'',location:''}, buyer:{company:'',name:'',phone:'',verified:false}, listings:[], offers:[] };
+    const loadDB = ()=> { try { return JSON.parse(localStorage.getItem(DB_KEY)) || structuredClone(dbDefault); } catch(e){ return structuredClone(dbDefault);} };
+    const saveDB = (data)=> localStorage.setItem(DB_KEY, JSON.stringify(data));
+    let DB = loadDB();
+    let lastDeleted = null; // for Undo
+
+    const saveAndRender = ()=>{ saveDB(DB); renderKPIs(); renderFarmer(); renderBuyer(); };
+
+    // -----------------------
+    // Simple routing via tabs
+    // -----------------------
+    const views = { landing:$('#viewLanding'), farmer:$('#viewFarmer'), buyer:$('#viewBuyer') };
+    function show(view){ Object.values(views).forEach(v=>v.classList.add('hidden')); views[view].classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
+
+    $('#goFarmer').onclick = ()=> { setTab('farmer'); show('farmer'); };
+    $('#goBuyer').onclick = ()=> { setTab('buyer'); show('buyer'); };
+    $('#tabFarmer').onclick = ()=> { setTab('farmer'); show('farmer'); };
+    $('#tabBuyer').onclick = ()=> { setTab('buyer'); show('buyer'); };
+
+    function setTab(which){
+      const isFarmer = which==='farmer';
+      $('#tabFarmer').setAttribute('aria-selected', isFarmer);
+      $('#tabBuyer').setAttribute('aria-selected', !isFarmer);
+    }
+
+    // -----------------------
+    // Landing KPIs
+    // -----------------------
+    function renderKPIs(){
+      const active = DB.listings.filter(l=>l.status==='active').length;
+      const sold = DB.listings.filter(l=>l.status==='sold').length;
+      const offers = DB.offers.length;
+      $('#kpiActive').textContent = active; $('#kpiSold').textContent = sold; $('#kpiOffers').textContent = offers;
+    }
+
+    // -----------------------
+    // Farmer Profile & Listings
+    // -----------------------
+    const farmerName = $('#farmerName');
+    const farmerPhone = $('#farmerPhone');
+    const farmerLocation = $('#farmerLocation');
+    const farmerNameLabel = $('#farmerNameLabel');
+
+    $('#saveFarmer').onclick = ()=>{
+      DB.farmer = { name:farmerName.value.trim(), phone:farmerPhone.value.trim(), location:farmerLocation.value.trim() };
+      saveAndRender();
+      toast('Farmer profile saved');
+    };
+
+    function renderFarmerProfile(){
+      const f=DB.farmer; farmerName.value=f.name; farmerPhone.value=f.phone; farmerLocation.value=f.location;
+      farmerNameLabel.textContent = f.name? f.name : 'Not set';
+    }
+
+    // Create listing
+    const crop = $('#crop');
+    const qty = $('#qty');
+    const unit = $('#unit');
+    const price = $('#price');
+    const listingLocation = $('#listingLocation');
+    const notes = $('#notes');
+    const photo = $('#photo');
+    const photoPreview = $('#photoPreview');
+
+    photo.addEventListener('change', e=>{
+      const file = e.target.files?.[0];
+      if(!file) { photoPreview.classList.add('hidden'); return; }
+      const reader = new FileReader();
+      reader.onload = ()=>{ photoPreview.src = reader.result; photoPreview.classList.remove('hidden'); };
+      reader.readAsDataURL(file);
+    });
+
+    $('#resetListing').onclick = ()=>{ crop.selectedIndex=0; qty.value=''; unit.value='ton'; price.value=''; listingLocation.value=''; notes.value=''; photo.value=''; photoPreview.classList.add('hidden'); };
+
+    $('#createListing').onclick = ()=>{
+      if(!DB.farmer.name){ return toast('Please save your Farmer profile first', true); }
+      if(!qty.value || !price.value){ return toast('Quantity and price are required', true); }
+      const l = {
+        id: uid(), crop: crop.value, qty: Number(qty.value), unit: unit.value, price: Number(price.value),
+        location: listingLocation.value.trim()||DB.farmer.location||'', notes: notes.value.trim(),
+        photo: photoPreview.src||'', status:'active', owner: { name:DB.farmer.name, phone:DB.farmer.phone },
+        createdAt: Date.now()
+      };
+      DB.listings.unshift(l);
+      saveAndRender();
+      $('#resetListing').click();
+      toast('Listing created');
+    };
+
+    const farmerListingsEl = $('#farmerListings');
+    const farmerFilterStatus = $('#farmerFilterStatus');
+    const farmerSearch = $('#farmerSearch');
+    const farmerSort = $('#farmerSort');
+
+    farmerFilterStatus.oninput = farmerSearch.oninput = farmerSort.oninput = ()=> renderFarmerListings();
+
+    function renderFarmerListings(){
+      const q = farmerSearch.value.toLowerCase();
+      const filter = farmerFilterStatus.value;
+      let mine = DB.listings.filter(l=>!DB.farmer.name || l.owner?.name===DB.farmer.name);
+      mine = mine.filter(l=>{
+        const okStatus = filter==='all' || (filter==='active'&&l.status==='active') || (filter==='pending'&&hasOffers(l.id)&&l.status==='active') || (filter==='sold'&&l.status==='sold');
+        const okQ = (l.crop+' '+l.location+' '+l.notes).toLowerCase().includes(q);
+        return okStatus && okQ;
+      });
+      if(farmerSort.value==='priceAsc') mine.sort((a,b)=>a.price-b.price);
+      else if(farmerSort.value==='priceDesc') mine.sort((a,b)=>b.price-a.price);
+      else mine.sort((a,b)=>b.createdAt-a.createdAt);
+
+      farmerListingsEl.innerHTML = mine.map(renderListingCardFarmer).join('') || `<div class="muted">No listings yet.</div>`;
+      attachFarmerCardHandlers();
+    }
+
+    function hasOffers(listingId){ return DB.offers.some(o=>o.listingId===listingId); }
+
+    function renderListingCardFarmer(l){
+      const offerCount = DB.offers.filter(o=>o.listingId===l.id).length;
+      const st = l.status==='active' ? 'status active' : (l.status==='sold' ? 'status sold' : 'status pending');
+      return `
+        <div class="card" data-id="${l.id}">
+          <div class="row" style="align-items:center;justify-content:space-between">
+            <div>
+              <div class="h3">${l.crop} • ${l.qty} ${l.unit} @ ${fmtMoney(l.price)} / ${l.unit}</div>
+              <div class="muted">${l.location||'–'} • ${new Date(l.createdAt).toLocaleDateString()}</div>
+            </div>
+            <div class="${st}">${l.status.toUpperCase()}</div>
+          </div>
+          ${l.photo?`<img class="img-preview" src="${l.photo}" alt="photo" />`:''}
+          <div class="muted" style="margin:8px 0">${l.notes||''}</div>
+          <div class="toolbar">
+            <button class="btn small" data-act="viewOffers">Offers (${offerCount})</button>
+            ${l.status==='active'?`<button class="btn warn small" data-act="markSold">Mark as Sold</button>`:''}
+            <button class="btn danger small" data-act="delete">Delete</button>
+          </div>
+        </div>`;
+    }
+
+    function attachFarmerCardHandlers(){
+      $$('#farmerListings [data-act]')
+        .forEach(btn=>{
+          btn.onclick = (e)=>{
+            const card = e.target.closest('[data-id]');
+            const id = card.dataset.id;
+            const act = e.target.getAttribute('data-act');
+            if(act==='delete'){
+              confirmBox('Delete this listing?', ()=>{
+                const li = DB.listings.find(x=>x.id===id); lastDeleted = li; // save for undo
+                DB.listings = DB.listings.filter(x=>x.id!==id);
+                DB.offers = DB.offers.filter(o=>o.listingId!==id);
+                saveAndRender();
+                toastUndo('Listing deleted', ()=>{ if(lastDeleted){ DB.listings.unshift(lastDeleted); lastDeleted=null; saveAndRender(); }});
+              });
+            } else if(act==='markSold'){
+              confirmBox('Mark this listing as SOLD?', ()=>{
+                const l = DB.listings.find(x=>x.id===id); if(!l) return; l.status='sold'; saveAndRender(); toast('Marked as SOLD');
+              });
+            } else if(act==='viewOffers'){
+              openOffersViewer(id);
+            }
+          };
+        });
+    }
+
+    // Quick add demo for speed
+    $('#quickAdd').onclick = ()=>{
+      if(!DB.farmer.name){ return toast('Save your Farmer profile first', true); }
+      const l = { id:uid(), crop:'Maize', qty:10, unit:'ton', price:4800, location:DB.farmer.location||'Local silo', notes:'G2, 13% moisture', photo:'', status:'active', owner:{name:DB.farmer.name, phone:DB.farmer.phone}, createdAt:Date.now() };
+      DB.listings.unshift(l); saveAndRender(); toast('Quick listing added');
+    };
+
+    function openOffersViewer(listingId){
+      const l = DB.listings.find(x=>x.id===listingId); if(!l) return;
+      $('#ovTitle').textContent = `${l.crop} • ${l.qty} ${l.unit}`;
+      $('#ovSub').textContent = `${l.location||''}`;
+      const its = DB.offers.filter(o=>o.listingId===listingId);
+      if(!its.length){ $('#ovList').innerHTML = `<div class="muted">No offers yet.</div>`; }
+      else{
+        $('#ovList').innerHTML = `
+          <table class="table">
+            <thead><tr><th>Buyer</th><th>Price / ${l.unit}</th><th>Qty</th><th>Msg</th><th>Action</th></tr></thead>
+            <tbody>
+              ${its.map(o=>`<tr data-oid="${o.id}">
+                <td>${o.buyer.company||'—'} <span class="chip">${o.buyer.verified?'Verified':'Unverified'}</span><div class="muted" style="font-size:.9rem">${o.buyer.name||''} • ${o.buyer.phone||''}</div></td>
+                <td>${fmtMoney(o.price)}</td>
+                <td>${o.qty} ${l.unit}</td>
+                <td>${o.msg?o.msg.replace(/</g,'&lt;'):''}</td>
+                <td>
+                  ${l.status==='active'?`<button class="btn primary small" data-act="accept">Accept</button> <button class="btn small" data-act="reject">Reject</button>`:'—'}
+                </td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+      const dlg=$('#offersViewer');
+      dlg.showModal();
+      $$('#ovList [data-act]')?.forEach(b=> b.onclick=(e)=>{
+        const row = e.target.closest('[data-oid]');
+        const oid = row.dataset.oid; const act = e.target.getAttribute('data-act');
+        if(act==='reject'){
+          confirmBox('Reject this offer?', ()=>{ DB.offers = DB.offers.filter(x=>x.id!==oid); saveAndRender(); openOffersViewer(listingId); toast('Offer rejected'); });
+        }
+        if(act==='accept'){
+          const off = DB.offers.find(x=>x.id===oid); if(!off) return;
+          confirmBox(`Accept offer from ${off.buyer.company||off.buyer.name||'buyer'} at ${fmtMoney(off.price)} per ${l.unit}?`, ()=>{
+            const li = DB.listings.find(x=>x.id===listingId); if(li){ li.status='sold'; }
+            saveAndRender(); dlg.close(); toast('Offer accepted. Listing marked as SOLD.');
+          });
+        }
+      });
+    }
+
+    function renderFarmer(){ renderFarmerProfile(); renderFarmerListings(); }
+
+    // -----------------------
+    // Buyer Profile & Browse
+    // -----------------------
+    const buyerCompany = $('#buyerCompany');
+    const buyerName = $('#buyerName');
+    const buyerPhone = $('#buyerPhone');
+    const buyerVerified = $('#buyerVerified');
+    const buyerVerifyBadge = $('#buyerVerifyBadge');
+
+    $('#saveBuyer').onclick = ()=>{
+      DB.buyer = { company:buyerCompany.value.trim(), name:buyerName.value.trim(), phone:buyerPhone.value.trim(), verified:(buyerVerified.value==='true') };
+      saveAndRender();
+      toast('Buyer profile saved');
+    };
+
+    function renderBuyerProfile(){
+      const b=DB.buyer; buyerCompany.value=b.company; buyerName.value=b.name; buyerPhone.value=b.phone; buyerVerified.value = b.verified?'true':'false';
+      buyerVerifyBadge.textContent = b.verified? 'Verified' : 'Unverified';
+    }
+
+    const filterCrop = $('#filterCrop');
+    const filterLocation = $('#filterLocation');
+    const filterMaxPrice = $('#filterMaxPrice');
+    const onlyActive = $('#onlyActive');
+    const browseListings = $('#browseListings');
+    const browseCount = $('#browseCount');
+    const buyerSort = $('#buyerSort');
+
+    $('#applyFilters').onclick = renderBrowse;
+    $('#resetFilters').onclick = ()=>{ filterCrop.value=''; filterLocation.value=''; filterMaxPrice.value=''; onlyActive.checked=true; buyerSort.value='new'; renderBrowse(); };
+
+    // Crop chips
+    $$('[data-cropchip]').forEach(ch=> ch.onclick=()=>{ filterCrop.value = ch.getAttribute('data-cropchip'); renderBrowse(); });
+
+    function renderBrowse(){
+      const fc = filterCrop.value; const fl = filterLocation.value.toLowerCase();
+      const mp = Number(filterMaxPrice.value||Infinity);
+      let list = DB.listings.filter(l=>{
+        if(onlyActive.checked && l.status!=='active') return false;
+        if(fc && l.crop!==fc) return false;
+        if(fl && !(`${l.location} ${l.notes}`.toLowerCase().includes(fl))) return false;
+        if(isFinite(mp) && (l.price>mp)) return false;
+        return true;
+      });
+      if(buyerSort.value==='priceAsc') list.sort((a,b)=>a.price-b.price);
+      else if(buyerSort.value==='priceDesc') list.sort((a,b)=>b.price-a.price);
+      else list.sort((a,b)=>b.createdAt-a.createdAt);
+
+      browseCount.textContent = `${list.length} result${list.length===1?'':'s'}`;
+      browseListings.innerHTML = list.map(renderBrowseCard).join('') || `<div class="muted">No matches. Try adjusting filters.</div>`;
+      attachBrowseHandlers();
+    }
+
+    function renderBrowseCard(l){
+      return `
+        <div class="card" data-id="${l.id}">
+          ${l.photo?`<img class="img-preview" src="${l.photo}" alt="photo" />`:''}
+          <div class="h3">${l.crop} • ${l.qty} ${l.unit}</div>
+          <div class="muted">${l.location||'–'} • ${new Date(l.createdAt).toLocaleDateString()}</div>
+          <div class="row" style="align-items:center;justify-content:space-between;margin:6px 0">
+            <div><span class="pill">Ask: ${fmtMoney(l.price)} / ${l.unit}</span></div>
+            <div>${l.status==='active'?'<span class="badge">Active</span>':'<span class="badge">Sold</span>'}</div>
+          </div>
+          <div class="muted" style="min-height:32px">${l.notes||''}</div>
+          <div class="divider"></div>
+          <div class="row" style="align-items:center;justify-content:space-between">
+            <div class="muted" style="font-size:1rem">Farmer: ${l.owner?.name||'—'} • ${l.owner?.phone||''}</div>
+            ${l.status==='active'?`<button class="btn cyan small" data-act="offer">Make Offer</button>`:''}
+          </div>
+        </div>`
+    }
+
+    function attachBrowseHandlers(){
+      $$('#browseListings [data-act="offer"]').forEach(btn=>{
+        btn.onclick = (e)=>{
+          if(!DB.buyer.name && !DB.buyer.company){ return toast('Please save your Buyer profile first', true); }
+          const card = e.target.closest('[data-id]');
+          const id = card.dataset.id; const l = DB.listings.find(x=>x.id===id); if(!l) return;
+          $('#offerListingTitle').textContent = `${l.crop} • ${l.qty} ${l.unit} @ ${fmtMoney(l.price)} / ${l.unit}`;
+          $('#offerPrice').value = l.price;
+          $('#offerQty').value = l.qty;
+          $('#offerMsg').value = '';
+          $('#submitOffer').onclick = (ev)=>{
+            ev.preventDefault();
+            const price = Number($('#offerPrice').value||0);
+            const oqty = Number($('#offerQty').value||0);
+            const msg = $('#offerMsg').value.trim();
+            const offer = { id:uid(), listingId:id, price, qty:oqty, msg, createdAt:Date.now(), buyer: structuredClone(DB.buyer) };
+            DB.offers.unshift(offer);
+            saveAndRender();
+            $('#offerModal').close();
+            toast('Offer submitted to the farmer');
+          };
+          $('#offerModal').showModal();
+        };
+      });
+    }
+
+    function renderBuyer(){ renderBuyerProfile(); renderBrowse(); }
+
+    // -----------------------
+    // UX helpers: Toasts, Confirms, Undo
+    // -----------------------
+    const toaster = document.createElement('div');
+    toaster.style.position='fixed'; toaster.style.bottom='16px'; toaster.style.left='50%'; toaster.style.transform='translateX(-50%)'; toaster.style.zIndex='1000';
+    document.body.appendChild(toaster);
+    function toast(msg, isError=false){
+      const el = document.createElement('div');
+      el.textContent = msg;
+      el.style.padding='12px 16px'; el.style.marginTop='8px'; el.style.borderRadius='12px'; el.style.fontWeight='800';
+      el.style.background=isError?'#fee2e2':'#dcfce7'; el.style.color=isError?'#7f1d1d':'#065f46'; el.style.border='1px solid #e5e7eb'; el.style.boxShadow='0 6px 10px rgba(2,6,23,.06)';
+      toaster.appendChild(el);
+      setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(()=>el.remove(),400); }, 2200);
+    }
+    function toastUndo(msg, onUndo){
+      const w = document.createElement('div'); w.style.display='flex'; w.style.alignItems='center'; w.style.gap='12px';
+      const t = document.createElement('div'); t.textContent=msg; w.appendChild(t);
+      const b = document.createElement('button'); b.textContent='Undo'; b.className='btn small'; b.onclick=()=>{ onUndo?.(); w.remove(); };
+      w.style.padding='12px 16px'; w.style.marginTop='8px'; w.style.borderRadius='12px'; w.style.fontWeight='800';
+      w.style.background='#dcfce7'; w.style.color='#065f46'; w.style.border='1px solid #e5e7eb'; w.style.boxShadow='0 6px 10px rgba(2,6,23,.06)';
+      w.appendChild(b); toaster.appendChild(w);
+      setTimeout(()=>{ w.style.opacity='0'; w.style.transition='opacity .4s'; setTimeout(()=>w.remove(),400); }, 4000);
+    }
+    function confirmBox(question, onYes){ if(confirm(question)) onYes?.(); }
+
+    // -----------------------
+    // Export / Import / Demo data
+    // -----------------------
+    $('#btnExport').onclick = ()=>{
+      const blob = new Blob([JSON.stringify(DB,null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download='farm2mill-data.json'; a.click(); URL.revokeObjectURL(url);
+    };
+
+    $('#importInput').addEventListener('change', (e)=>{
+      const file = e.target.files?.[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{ const data = JSON.parse(reader.result); DB = { ...structuredClone(dbDefault), ...data }; saveAndRender(); toast('Data imported'); }
+        catch(err){ toast('Invalid JSON', true); }
+      };
+      reader.readAsText(file);
+    });
+
+    $('#btnDemo').onclick = ()=>{
+      DB = structuredClone(dbDefault);
+      DB.farmer = { name:'Demo Farmer', phone:'082 000 0000', location:'Bethlehem, FS' };
+      DB.buyer = { company:'Demo Milling', name:'Naledi D.', phone:'083 111 2222', verified:true };
+      const now = Date.now();
+      DB.listings = [
+        {id:uid(), crop:'Maize', qty:12, unit:'ton', price:4700, location:'Bethlehem', notes:'G2, 12.8% moisture', photo:'', status:'active', owner:{name:'Demo Farmer', phone:'082 000 0000'}, createdAt:now-3600_000},
+        {id:uid(), crop:'Soya', qty:8, unit:'ton', price:9300, location:'Standerton', notes:'Protein 37%', photo:'', status:'active', owner:{name:'Demo Farmer', phone:'082 000 0000'}, createdAt:now-86_400_000},
+        {id:uid(), crop:'Wheat', qty:20, unit:'ton', price:5600, location:'Reitz', notes:'Class B1', photo:'', status:'sold', owner:{name:'Demo Farmer', phone:'082 000 0000'}, createdAt:now-172_800_000}
+      ];
+      DB.offers = [
+        {id:uid(), listingId: DB.listings[0].id, price:4650, qty:10, msg:'Pickup Friday, COD', createdAt:now-1800_000, buyer: structuredClone(DB.buyer)},
+      ];
+      saveAndRender();
+      setTab('farmer'); show('farmer');
+      toast('Demo data loaded');
+    };
+
+    // -----------------------
+    // Initial render
+    // -----------------------
+    function boot(){ renderKPIs(); renderFarmer(); renderBuyer(); show('landing'); }
+    boot();
+  </script>
+</body>
+</html>
