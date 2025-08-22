@@ -319,6 +319,7 @@
     const $$ = (q, el=document)=>[...el.querySelectorAll(q)];
     const fmtMoney = (n)=> new Intl.NumberFormat('en-ZA',{style:'currency',currency:'ZAR',maximumFractionDigits:2}).format(Number(n||0));
     const uid = ()=> Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const escapeHtml = (s='')=> s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
     const DB_KEY = 'f2m_db_v3_light_plus';
     const dbDefault = { farmer:{name:'',phone:'',location:''}, buyer:{company:'',name:'',phone:'',verified:false}, listings:[], offers:[] };
@@ -506,7 +507,7 @@
                 <td>${o.buyer.company||'—'} <span class="chip">${o.buyer.verified?'Verified':'Unverified'}</span><div class="muted" style="font-size:.9rem">${o.buyer.name||''} • ${o.buyer.phone||''}</div></td>
                 <td>${fmtMoney(o.price)}</td>
                 <td>${o.qty} ${l.unit}</td>
-                <td>${o.msg?o.msg.replace(/</g,'&lt;'):''}</td>
+                <td>${o.msg?escapeHtml(o.msg):''}</td>
                 <td>
                   ${l.status==='active'?`<button class="btn primary small" data-act="accept">Accept</button> <button class="btn small" data-act="reject">Reject</button>`:'—'}
                 </td>
